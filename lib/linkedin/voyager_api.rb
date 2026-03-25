@@ -3,6 +3,7 @@
 require_relative "voyager_api/version"
 require_relative "voyager_api/errors"
 require_relative "voyager_api/utils"
+require_relative "voyager_api/profile"
 require_relative "voyager_api/client"
 
 module LinkedIn

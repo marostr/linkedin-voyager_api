@@ -1,0 +1,25 @@
+{
+  "emailAddress": "tom@example.com",
+  "twitterHandles": ["@tomquirk"],
+  "birthDateOn": {"month": 1, "day": 15},
+  "ims": [],
+  "phoneNumbers": [{"number": "+61412345678", "type": "MOBILE"}],
+  "websites": [
+    {
+      "url": "https://tomquirk.com",
+      "type": {
+        "com.linkedin.voyager.identity.profile.StandardWebsite": {
+          "category": "PERSONAL"
+        }
+      }
+    },
+    {
+      "url": "https://myblog.com",
+      "type": {
+        "com.linkedin.voyager.identity.profile.CustomWebsite": {
+          "label": "My Blog"
+        }
+      }
+    }
+  ]
+}

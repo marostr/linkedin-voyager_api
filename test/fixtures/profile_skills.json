@@ -1,0 +1,7 @@
+{
+  "elements": [
+    {"name": "Ruby", "entityUrn": "urn:li:fs_skill:123"},
+    {"name": "Python", "entityUrn": "urn:li:fs_skill:456"},
+    {"name": "JavaScript", "entityUrn": "urn:li:fs_skill:789"}
+  ]
+}

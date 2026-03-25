@@ -8,6 +8,8 @@ require "logger"
 module LinkedIn
   module VoyagerApi
     class Client
+      include Profile
+
       API_BASE_URL = "https://www.linkedin.com/voyager/api"
 
       MAX_UPDATE_COUNT = 100
