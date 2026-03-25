@@ -4,15 +4,17 @@ module LinkedIn
   module VoyagerApi
     module Feed
       def profile_updates(public_id: nil, urn_id: nil, max_results: nil)
+        identifier = require_identifier(public_id, urn_id)
         fetch_feed_updates(
-          -> (count, start) { Feed.profile_updates_params(public_id || urn_id, count: count, start: start) },
+          ->(count, start) { Feed.profile_updates_params(identifier, count: count, start: start) },
           max_results: max_results
         )
       end
 
       def company_updates(public_id: nil, urn_id: nil, max_results: nil)
+        identifier = require_identifier(public_id, urn_id)
         fetch_feed_updates(
-          -> (count, start) { Feed.company_updates_params(public_id || urn_id, count: count, start: start) },
+          ->(count, start) { Feed.company_updates_params(identifier, count: count, start: start) },
           max_results: max_results
         )
       end
@@ -43,17 +45,8 @@ module LinkedIn
         }
       end
 
-      def collect_elements(pages, max_results: nil)
-        results = []
-        pages.each do |page|
-          results.concat(page["elements"])
-          break if max_results && results.length >= max_results
-        end
-        max_results ? results.first(max_results) : results
-      end
-
       def should_stop?(page, results_count:, request_count:, max_results:)
-        return true if page["elements"].empty?
+        return true if page.fetch("elements", []).empty?
         return true if max_results && results_count >= max_results
         return true if request_count >= Client::MAX_REPEATED_REQUESTS
 
@@ -71,7 +64,9 @@ module LinkedIn
           data = get("/feed/updates", params: params)
           request_count += 1
 
-          results.concat(data["elements"])
+          return [] if data && data["status"] && data["status"] != 200
+
+          results.concat(data.fetch("elements", []))
 
           break if Feed.should_stop?(data, results_count: results.length, request_count: request_count, max_results: max_results)
         end

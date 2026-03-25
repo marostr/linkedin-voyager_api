@@ -130,7 +130,6 @@ Mixed into `Client`.
 - `#get_profile(public_id: nil, urn_id: nil)` — full profile with response transformations (see below)
 - `#get_profile_contact_info(public_id: nil, urn_id: nil)` — email, phone, websites, twitter
 - `#get_profile_skills(public_id: nil, urn_id: nil)` — skills list
-- `#get_user_profile` — current authenticated user via `/me`
 
 **`get_profile` parsing detail:** This method performs significant response transformation, matching the Python lib:
 

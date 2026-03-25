@@ -69,6 +69,11 @@ module LinkedIn
       def test_default_logger_is_silent
         assert_instance_of Logger, @client.logger
       end
+
+      def test_cookie_header_format
+        header = @client.send(:cookie_header)
+        assert_equal 'li_at=AQJtoken123; JSESSIONID="ajax:123456"', header
+      end
     end
 
     class ClientErrorHandlingTest < Minitest::Test

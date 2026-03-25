@@ -81,11 +81,28 @@ module LinkedIn
       end
 
       def test_parse_profile_handles_missing_picture
-        @data["profile"]["miniProfile"].delete("picture")
-        profile = Profile.parse_profile(@data)
+        data = load_fixture("profile_view.json")
+        data["profile"]["miniProfile"].delete("picture")
+        profile = Profile.parse_profile(data)
 
         refute profile.key?("displayPictureUrl")
         assert_equal "ACoAAAKT9JQ", profile["profile_id"]
+      end
+
+      def test_parse_profile_does_not_mutate_input
+        data = load_fixture("profile_view.json")
+        Profile.parse_profile(data)
+
+        assert data["profile"].key?("miniProfile"), "original data should not be mutated"
+        assert data["positionView"]["elements"][0]["company"].key?("miniCompany"), "original experience should not be mutated"
+      end
+
+      def test_parse_experience_is_private
+        assert_raises(NoMethodError) { Profile.parse_experience([]) }
+      end
+
+      def test_parse_education_is_private
+        assert_raises(NoMethodError) { Profile.parse_education([]) }
       end
     end
 
@@ -132,6 +149,13 @@ module LinkedIn
         assert_equal "https://myblog.com", websites[1]["url"]
         refute websites[1].key?("type")
       end
+
+      def test_parse_contact_info_does_not_mutate_input
+        data = load_fixture("profile_contact_info.json")
+        Profile.parse_contact_info(data)
+
+        assert data["websites"][0].key?("type"), "original data should not be mutated"
+      end
     end
 
     class ProfileSkillsParsingTest < Minitest::Test
@@ -144,6 +168,13 @@ module LinkedIn
         assert_equal 3, skills.length
         assert_equal "Ruby", skills[0]["name"]
         skills.each { |s| refute s.key?("entityUrn") }
+      end
+
+      def test_parse_skills_does_not_mutate_input
+        data = load_fixture("profile_skills.json")
+        Profile.parse_skills(data)
+
+        assert data["elements"][0].key?("entityUrn"), "original data should not be mutated"
       end
     end
   end

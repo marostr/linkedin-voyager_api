@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module LinkedIn
   module VoyagerApi
     module Profile
@@ -8,8 +10,9 @@ module LinkedIn
       VECTOR_IMAGE_TYPE = "com.linkedin.common.VectorImage"
 
       def get_profile(public_id: nil, urn_id: nil)
-        data = get("/identity/profiles/#{public_id || urn_id}/profileView")
-        profile = self.class.module_eval { Profile }.parse_profile(data)
+        identifier = require_identifier(public_id, urn_id)
+        data = get("/identity/profiles/#{identifier}/profileView")
+        profile = Profile.parse_profile(data)
         return profile unless profile
 
         profile["skills"] = get_profile_skills(public_id: public_id, urn_id: urn_id)
@@ -17,17 +20,15 @@ module LinkedIn
       end
 
       def get_profile_contact_info(public_id: nil, urn_id: nil)
-        data = get("/identity/profiles/#{public_id || urn_id}/profileContactInfo")
+        identifier = require_identifier(public_id, urn_id)
+        data = get("/identity/profiles/#{identifier}/profileContactInfo")
         Profile.parse_contact_info(data)
       end
 
       def get_profile_skills(public_id: nil, urn_id: nil)
-        data = get("/identity/profiles/#{public_id || urn_id}/skills", params: {count: 100, start: 0})
+        identifier = require_identifier(public_id, urn_id)
+        data = get("/identity/profiles/#{identifier}/skills", params: {count: 100, start: 0})
         Profile.parse_skills(data)
-      end
-
-      def get_user_profile
-        get("/me")
       end
 
       module_function
@@ -35,7 +36,8 @@ module LinkedIn
       def parse_profile(data)
         return nil if data && data["status"] && data["status"] != 200
 
-        profile = data["profile"].dup
+        data = deep_dup(data)
+        profile = data["profile"]
 
         if profile["miniProfile"]
           mini = profile["miniProfile"]
@@ -58,16 +60,7 @@ module LinkedIn
       end
 
       def parse_contact_info(data)
-        contact_info = {
-          "email_address" => data["emailAddress"],
-          "websites" => [],
-          "twitter" => data["twitterHandles"],
-          "birthdate" => data["birthDateOn"],
-          "ims" => data["ims"],
-          "phone_numbers" => data.fetch("phoneNumbers", []),
-        }
-
-        websites = data.fetch("websites", [])
+        websites = data.fetch("websites", []).map(&:dup)
         websites.each do |item|
           if item["type"].key?(STANDARD_WEBSITE_TYPE)
             item["label"] = item["type"][STANDARD_WEBSITE_TYPE]["category"]
@@ -77,19 +70,21 @@ module LinkedIn
           item.delete("type")
         end
 
-        contact_info["websites"] = websites
-        contact_info
+        {
+          "email_address" => data["emailAddress"],
+          "websites" => websites,
+          "twitter" => data["twitterHandles"],
+          "birthdate" => data["birthDateOn"],
+          "ims" => data["ims"],
+          "phone_numbers" => data.fetch("phoneNumbers", []),
+        }
       end
 
       def parse_skills(data)
-        skills = data.fetch("elements", [])
-        skills.each { |item| item.delete("entityUrn") }
-        skills
+        data.fetch("elements", []).map { |item| item.reject { |k, _| k == "entityUrn" } }
       end
 
-      private
-
-      def self.parse_experience(elements)
+      def parse_experience(elements)
         elements.each do |item|
           next unless item["company"] && item["company"]["miniCompany"]
 
@@ -103,15 +98,22 @@ module LinkedIn
         elements
       end
 
-      def self.parse_education(elements)
+      def parse_education(elements)
         elements.each do |item|
           next unless item["school"] && item["school"]["logo"]
 
-          item["school"]["logoUrl"] = item["school"]["logo"][VECTOR_IMAGE_TYPE]["rootUrl"]
+          logo = item["school"]["logo"][VECTOR_IMAGE_TYPE]
+          item["school"]["logoUrl"] = logo["rootUrl"] if logo
           item["school"].delete("logo")
         end
         elements
       end
+
+      def deep_dup(obj)
+        JSON.parse(JSON.generate(obj))
+      end
+
+      private_class_method :parse_experience, :parse_education, :deep_dup
     end
   end
 end

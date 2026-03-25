@@ -6,6 +6,8 @@ module LinkedIn
       DECORATION_ID = "com.linkedin.voyager.deco.organization.web.WebFullCompanyMain-12"
 
       def get_company(public_id)
+        raise ArgumentError, "public_id is required" unless public_id
+
         data = get(
           "/organization/companies",
           params: {

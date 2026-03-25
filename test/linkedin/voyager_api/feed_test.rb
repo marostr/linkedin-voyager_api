@@ -7,39 +7,6 @@ module LinkedIn
     class FeedPaginationTest < Minitest::Test
       include FixtureHelper
 
-      def test_collect_elements_from_single_page
-        page = load_fixture("feed_updates_page1.json")
-        elements = Feed.collect_elements([page])
-
-        assert_equal 3, elements.length
-        assert_equal "update-1", elements[0]["id"]
-        assert_equal "update-3", elements[2]["id"]
-      end
-
-      def test_collect_elements_from_multiple_pages
-        page1 = load_fixture("feed_updates_page1.json")
-        page2 = load_fixture("feed_updates_page2.json")
-        elements = Feed.collect_elements([page1, page2])
-
-        assert_equal 5, elements.length
-        assert_equal "update-5", elements[4]["id"]
-      end
-
-      def test_collect_elements_respects_max_results
-        page1 = load_fixture("feed_updates_page1.json")
-        page2 = load_fixture("feed_updates_page2.json")
-        elements = Feed.collect_elements([page1, page2], max_results: 4)
-
-        assert_equal 4, elements.length
-      end
-
-      def test_collect_elements_from_empty_page
-        page = load_fixture("feed_updates_empty.json")
-        elements = Feed.collect_elements([page])
-
-        assert_equal [], elements
-      end
-
       def test_should_stop_when_empty_page
         page = load_fixture("feed_updates_empty.json")
 
@@ -70,6 +37,14 @@ module LinkedIn
         refute Feed.should_stop?(page, results_count: 3, request_count: 1, max_results: 10)
       end
 
+      def test_should_stop_when_elements_key_missing
+        page = {"status" => 404, "message" => "not found"}
+
+        assert Feed.should_stop?(page, results_count: 0, request_count: 1, max_results: nil)
+      end
+    end
+
+    class FeedParamsTest < Minitest::Test
       def test_profile_updates_params
         params = Feed.profile_updates_params("tom-quirk", count: 100, start: 0)
 

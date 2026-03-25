@@ -96,6 +96,12 @@ module LinkedIn
         sleep(rand(2..5))
       end
 
+      def require_identifier(public_id, urn_id)
+        identifier = public_id || urn_id
+        raise ArgumentError, "public_id or urn_id is required" unless identifier
+        identifier
+      end
+
       def validate_cookies!(cookies)
         raise ArgumentError, "li_at cookie is required" unless cookies[:li_at]
         raise ArgumentError, "jsessionid cookie is required" unless cookies[:jsessionid]
