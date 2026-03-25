@@ -1,0 +1,8 @@
+{
+  "elements": [
+    {"id": "update-1", "actor": "urn:li:member:123", "commentary": "Post 1"},
+    {"id": "update-2", "actor": "urn:li:member:456", "commentary": "Post 2"},
+    {"id": "update-3", "actor": "urn:li:member:789", "commentary": "Post 3"}
+  ],
+  "paging": {"start": 0, "count": 3, "total": 5}
+}

@@ -10,6 +10,7 @@ module LinkedIn
     class Client
       include Profile
       include Company
+      include Feed
 
       API_BASE_URL = "https://www.linkedin.com/voyager/api"
 
