@@ -1,0 +1,15 @@
+{
+  "elements": [
+    {
+      "name": "LinkedIn",
+      "universalName": "linkedin",
+      "description": "A business-oriented social networking service",
+      "staffCount": 16000,
+      "headquarter": {
+        "city": "Sunnyvale",
+        "country": "US"
+      },
+      "entityUrn": "urn:li:fs_normalized_company:1337"
+    }
+  ]
+}
