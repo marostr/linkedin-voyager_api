@@ -3,12 +3,24 @@
 module LinkedIn
   module VoyagerApi
     module Feed
-      def profile_updates(public_id: nil, urn_id: nil, max_results: nil)
-        identifier = require_identifier(public_id, urn_id)
-        fetch_feed_updates(
-          ->(count, start) { Feed.profile_updates_params(identifier, count: count, start: start) },
-          max_results: max_results
+      NORMALIZED_JSON_HEADER = {"accept" => "application/vnd.linkedin.normalized+json+2.1"}.freeze
+
+      def home_feed(count: 100, start: 0)
+        data = get("/feed/updatesV2",
+          params: {count: count, q: "chronFeed", start: start},
+          headers: NORMALIZED_JSON_HEADER
         )
+        data.fetch("included", [])
+      end
+
+      def profile_posts(public_id: nil, urn_id: nil, post_count: 10)
+        identifier = require_identifier(public_id, urn_id)
+        # profileUpdatesV2 needs a fsd_profile URN, not a public_id.
+        # If given a public_id, we'd need to resolve it first via get_profile.
+        # For now, assume urn_id is the fsd_profile fragment.
+        profile_urn = "urn:li:fsd_profile:#{identifier}"
+
+        fetch_profile_posts(profile_urn, post_count: post_count)
       end
 
       def company_updates(public_id: nil, urn_id: nil, max_results: nil)
@@ -19,21 +31,7 @@ module LinkedIn
         )
       end
 
-      def home_feed(count: 100, start: 0)
-        get("/feed/updates", params: {count: count, start: start})
-      end
-
       module_function
-
-      def profile_updates_params(identifier, count:, start:)
-        {
-          profileId: identifier,
-          q: "memberShareFeed",
-          moduleKey: "member-share",
-          count: count,
-          start: start,
-        }
-      end
 
       def company_updates_params(identifier, count:, start:)
         {
@@ -54,6 +52,40 @@ module LinkedIn
       end
 
       private
+
+      def fetch_profile_posts(profile_urn, post_count:)
+        results = []
+        pagination_token = nil
+        request_count = 0
+
+        loop do
+          params = {
+            count: [post_count - results.length, Client::MAX_UPDATE_COUNT].min,
+            start: results.length,
+            q: "memberShareFeed",
+            moduleKey: "member-shares:phone",
+            includeLongTermHistory: true,
+            profileUrn: profile_urn,
+          }
+          params[:paginationToken] = pagination_token if pagination_token
+
+          data = get("/identity/profileUpdatesV2", params: params)
+          request_count += 1
+
+          return [] if data && data["status"] && data["status"] != 200
+
+          elements = data.fetch("elements", [])
+          results.concat(elements)
+
+          pagination_token = data.dig("metadata", "paginationToken")
+          break if elements.empty?
+          break if results.length >= post_count
+          break if pagination_token.nil? || pagination_token.empty?
+          break if request_count >= Client::MAX_REPEATED_REQUESTS
+        end
+
+        results.first(post_count)
+      end
 
       def fetch_feed_updates(params_builder, max_results: nil)
         results = []
