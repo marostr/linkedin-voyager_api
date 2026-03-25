@@ -3,6 +3,7 @@
 require_relative "voyager_api/version"
 require_relative "voyager_api/errors"
 require_relative "voyager_api/utils"
+require_relative "voyager_api/models"
 require_relative "voyager_api/profile"
 require_relative "voyager_api/company"
 require_relative "voyager_api/feed"

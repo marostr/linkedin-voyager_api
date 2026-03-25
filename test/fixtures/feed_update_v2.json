@@ -1,0 +1,76 @@
+{
+  "actor": {
+    "urn": "urn:li:member:12345",
+    "image": {
+      "attributes": [
+        {
+          "sourceType": "PROFILE_PICTURE",
+          "miniProfile": {
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "entityUrn": "urn:li:fs_miniProfile:ACoAAA123",
+            "publicIdentifier": "janedoe"
+          }
+        }
+      ]
+    },
+    "name": {
+      "text": "Jane Doe",
+      "textDirection": "FIRST_STRONG"
+    },
+    "description": {
+      "text": "Senior Engineer at Acme Corp"
+    },
+    "subDescription": {
+      "text": "2d • "
+    },
+    "navigationContext": {
+      "actionTarget": "https://www.linkedin.com/in/janedoe?miniProfileUrn=urn%3Ali%3Afs_miniProfile%3AACoAAA123"
+    }
+  },
+  "dashEntityUrn": "urn:li:fsd_update:(urn:li:activity:7400000000000000001,MEMBER_SHARES,DEBUG_REASON,DEFAULT,false)",
+  "entityUrn": "urn:li:fs_updateV2:(urn:li:activity:7400000000000000001,MEMBER_SHARES,DEBUG_REASON,DEFAULT,false)",
+  "commentary": {
+    "numLines": 3,
+    "text": {
+      "text": "Excited to share our latest project! We've been working on something really cool.",
+      "textDirection": "FIRST_STRONG",
+      "attributes": []
+    }
+  },
+  "content": {
+    "com.linkedin.voyager.feed.render.ImageComponent": {
+      "images": [
+        {
+          "attributes": [
+            {
+              "imageUrl": "https://media.licdn.com/dms/image/example.jpg"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "updateMetadata": {
+    "urn": "urn:li:fs_updateV2:(urn:li:activity:7400000000000000001,MEMBER_SHARES,DEBUG_REASON,DEFAULT,false)",
+    "shareUrn": "urn:li:ugcPost:7400000000000000000",
+    "rootShare": true,
+    "shareAudience": "PUBLIC",
+    "detailPageType": "FEED_DETAIL"
+  },
+  "socialDetail": {
+    "totalSocialActivityCounts": {
+      "numLikes": 42,
+      "numComments": 5,
+      "numShares": 3,
+      "reactionTypeCounts": [
+        {"reactionType": "LIKE", "count": 30},
+        {"reactionType": "PRAISE", "count": 8},
+        {"reactionType": "EMPATHY", "count": 4}
+      ]
+    },
+    "liked": false,
+    "entityUrn": "urn:li:fs_socialDetail:urn:li:ugcPost:7400000000000000000"
+  },
+  "socialContent": {}
+}

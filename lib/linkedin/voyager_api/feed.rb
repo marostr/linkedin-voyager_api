@@ -4,31 +4,37 @@ module LinkedIn
   module VoyagerApi
     module Feed
       NORMALIZED_JSON_HEADER = {"accept" => "application/vnd.linkedin.normalized+json+2.1"}.freeze
+      UPDATE_V2_TYPE = "com.linkedin.voyager.feed.render.UpdateV2"
 
       def home_feed(count: 100, start: 0)
         data = get("/feed/updatesV2",
           params: {count: count, q: "chronFeed", start: start},
           headers: NORMALIZED_JSON_HEADER
         )
-        data.fetch("included", [])
+        included = data.fetch("included", [])
+        included
+          .select { |item| item["$type"] == UPDATE_V2_TYPE }
+          .filter_map { |update| FeedPost.from_update(update) }
       end
 
       def profile_posts(public_id: nil, urn_id: nil, post_count: 10)
         identifier = require_identifier(public_id, urn_id)
-        # profileUpdatesV2 needs a fsd_profile URN, not a public_id.
-        # If given a public_id, we'd need to resolve it first via get_profile.
-        # For now, assume urn_id is the fsd_profile fragment.
         profile_urn = "urn:li:fsd_profile:#{identifier}"
 
-        fetch_profile_posts(profile_urn, post_count: post_count)
+        raw = fetch_profile_posts(profile_urn, post_count: post_count)
+        raw.filter_map { |update| FeedPost.from_update(update) }
       end
 
       def company_updates(public_id: nil, urn_id: nil, max_results: nil)
         identifier = require_identifier(public_id, urn_id)
-        fetch_feed_updates(
+        raw = fetch_feed_updates(
           ->(count, start) { Feed.company_updates_params(identifier, count: count, start: start) },
           max_results: max_results
         )
+        raw.filter_map do |element|
+          update = element.dig("value", UPDATE_V2_TYPE) || element
+          FeedPost.from_update(update)
+        end
       end
 
       module_function

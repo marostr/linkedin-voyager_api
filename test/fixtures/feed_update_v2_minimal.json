@@ -1,0 +1,12 @@
+{
+  "actor": {
+    "urn": "urn:li:member:99999",
+    "name": {
+      "text": "Bot Account"
+    }
+  },
+  "entityUrn": "urn:li:fs_updateV2:(urn:li:activity:7400000000000000002,MEMBER_SHARES,DEBUG_REASON,DEFAULT,false)",
+  "updateMetadata": {
+    "urn": "urn:li:fs_updateV2:(urn:li:activity:7400000000000000002,MEMBER_SHARES,DEBUG_REASON,DEFAULT,false)"
+  }
+}
