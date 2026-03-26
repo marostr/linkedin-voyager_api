@@ -8,7 +8,6 @@ require "logger"
 module LinkedIn
   module VoyagerApi
     class Client
-      include Profile
       include Company
       include Feed
 
