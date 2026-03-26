@@ -5,16 +5,43 @@ module LinkedIn
     module Feed
       NORMALIZED_JSON_HEADER = {"accept" => "application/vnd.linkedin.normalized+json+2.1"}.freeze
       UPDATE_V2_TYPE = "com.linkedin.voyager.feed.render.UpdateV2"
+      HOME_FEED_BATCH_SIZE = 50
+      HOME_FEED_RETRY_DELAY = 3
 
-      def home_feed(count: 100, start: 0)
-        data = get("/feed/updatesV2",
-          params: {count: count, q: "chronFeed", start: start},
-          headers: NORMALIZED_JSON_HEADER
-        )
-        included = data.fetch("included", [])
-        included
-          .select { |item| item["$type"] == UPDATE_V2_TYPE }
-          .filter_map { |update| FeedPost.from_update(update) }
+      def home_feed(limit: 200, batch_size: HOME_FEED_BATCH_SIZE, retry_delay: HOME_FEED_RETRY_DELAY, count: nil)
+        batch_size = count if count # backward compat
+        all_posts = []
+        offset = 0
+        request_count = 0
+
+        while all_posts.length < limit && request_count < Client::MAX_REPEATED_REQUESTS
+          data = begin
+            get("/feed/updatesV2",
+              params: {count: batch_size, q: "chronFeed", start: offset},
+              headers: NORMALIZED_JSON_HEADER)
+          rescue Error
+            begin
+              sleep(retry_delay) if retry_delay > 0
+              get("/feed/updatesV2",
+                params: {count: batch_size, q: "chronFeed", start: offset},
+                headers: NORMALIZED_JSON_HEADER)
+            rescue Error
+              break
+            end
+          end
+          request_count += 1
+
+          batch = data.fetch("included", [])
+            .select { |item| item["$type"] == UPDATE_V2_TYPE }
+            .filter_map { |update| FeedPost.from_update(update) }
+
+          break if batch.empty?
+
+          all_posts.concat(batch)
+          offset += batch_size
+        end
+
+        all_posts.first(limit)
       end
 
       def profile_posts(public_id: nil, urn_id: nil, post_count: 10)

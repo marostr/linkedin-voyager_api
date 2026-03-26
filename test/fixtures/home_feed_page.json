@@ -1,0 +1,35 @@
+{
+  "included": [
+    {
+      "$type": "com.linkedin.voyager.feed.render.UpdateV2",
+      "actor": {
+        "urn": "urn:li:member:101",
+        "name": {"text": "Alice"},
+        "description": {"text": "Engineer"},
+        "navigationContext": {"actionTarget": "https://www.linkedin.com/in/alice"}
+      },
+      "commentary": {"text": {"text": "Post from Alice"}},
+      "updateMetadata": {"urn": "urn:li:fs_updateV2:(urn:li:activity:1001,MEMBER_SHARES,DEBUG_REASON,DEFAULT,false)", "shareUrn": "urn:li:ugcPost:1001"},
+      "socialDetail": {"totalSocialActivityCounts": {"numLikes": 10, "numComments": 2, "numShares": 1, "reactionTypeCounts": []}}
+    },
+    {
+      "$type": "com.linkedin.voyager.feed.render.UpdateV2",
+      "actor": {
+        "urn": "urn:li:member:102",
+        "name": {"text": "Bob"},
+        "description": {"text": "Designer"},
+        "navigationContext": {"actionTarget": "https://www.linkedin.com/in/bob"}
+      },
+      "commentary": {"text": {"text": "Post from Bob"}},
+      "updateMetadata": {"urn": "urn:li:fs_updateV2:(urn:li:activity:1002,MEMBER_SHARES,DEBUG_REASON,DEFAULT,false)", "shareUrn": "urn:li:ugcPost:1002"},
+      "socialDetail": {"totalSocialActivityCounts": {"numLikes": 5, "numComments": 0, "numShares": 0, "reactionTypeCounts": []}}
+    },
+    {
+      "$type": "com.linkedin.voyager.identity.shared.MiniProfile",
+      "entityUrn": "urn:li:fs_miniProfile:ACoAAA101",
+      "firstName": "Alice",
+      "lastName": "Smith"
+    }
+  ],
+  "paging": {"start": 0, "count": 100, "total": 250}
+}
